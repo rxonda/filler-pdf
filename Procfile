@@ -1,0 +1,1 @@
+web: java -Dserver.port=$PORT -jar  target/org.xonda-0.1.0.jar
