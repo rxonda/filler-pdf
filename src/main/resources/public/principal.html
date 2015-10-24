@@ -1,27 +1,32 @@
-<form ng-submit="send(dado)">
-    <div class="form-group">
-        <label for="inputNome">Nome</label>
-        <input type="text" ng-model="dado.nome" class="form-control" id="inputNome" placeholder="Seu nome...">
+<div class="panel panel-default">
+    <div class="panel-heading">Dados:</div>
+    <div class="panel-body">
+        <form ng-submit="send(dado)">
+            <div class="form-group">
+                <label for="inputNome">Nome</label>
+                <input type="text" ng-model="dado.nome" class="form-control" id="inputNome" placeholder="Seu nome...">
+            </div>
+            <div class="form-group">
+                <label for="inputEmail">Email</label>
+                <input type="email" ng-model="dado.email" class="form-control" id="inputEmail" placeholder="Seu email pessoal...">
+            </div>
+            <div class="form-group">
+                <label for="inputTelefone">Telefone</label>
+                <input type="tel" ng-model="dado.telefone" class="form-control" id="inputTelefone" placeholder="Seu telefone pessoal...">
+            </div>
+            <div class="form-group">
+                <label for="inputEmpresa">Empresa</label>
+                <input type="text" ng-model="dado.empresa" class="form-control" id="inputEmpresa" placeholder="Empresa onde trabalha...">
+            </div>
+            <div class="form-group">
+                <label for="inputCargo">Cargo</label>
+                <input type="text" ng-model="dado.cargo" class="form-control" id="inputCargo" placeholder="Cargo que ocupa...">
+            </div>
+            <div class="form-group">
+                <label for="inputEndereco">Endereço</label>
+                <input type="text" ng-model="dado.endereco" class="form-control" id="inputEndereco" placeholder="Endereço onde trabalha...">
+            </div>
+            <button type="submit" class="btn btn-default">Download da Carta</button>
+        </form>
     </div>
-    <div class="form-group">
-        <label for="inputEmail">Email</label>
-        <input type="email" ng-model="dado.email" class="form-control" id="inputEmail" placeholder="Seu email pessoal...">
-    </div>
-    <div class="form-group">
-        <label for="inputTelefone">Telefone</label>
-        <input type="tel" ng-model="dado.telefone" class="form-control" id="inputTelefone" placeholder="Seu telefone pessoal...">
-    </div>
-    <div class="form-group">
-        <label for="inputEmpresa">Empresa</label>
-        <input type="text" ng-model="dado.empresa" class="form-control" id="inputEmpresa" placeholder="Empresa onde trabalha...">
-    </div>
-    <div class="form-group">
-        <label for="inputCargo">Cargo</label>
-        <input type="text" ng-model="dado.cargo" class="form-control" id="inputCargo" placeholder="Cargo que ocupa...">
-    </div>
-    <div class="form-group">
-        <label for="inputEndereco">Endereço</label>
-        <input type="text" ng-model="dado.endereco" class="form-control" id="inputEndereco" placeholder="Endereço onde trabalha...">
-    </div>
-    <button type="submit" class="btn btn-default">Submit</button>
-</form>
+</div>

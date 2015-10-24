@@ -3,16 +3,19 @@
 */
 var fillerApp=angular.module('fillerApp', ['ngRoute']);
 
-fillerApp.config(function($routeProvider){
-   $routeProvider.
+fillerApp.config(['$routeProvider', function(routeProvider){
+   routeProvider.
        when('/', {
+           templateUrl: './introducao.html'
+       }).
+       when('/dados', {
            templateUrl: './principal.html',
            controller: 'fillerController'
        }).
        otherwise({
            redirectTo: '/'
        });
-});
+}]);
 
 fillerApp.controller('fillerController',['$scope', '$http', '$window', function(scope, http, window){
     scope.send = function(dataObj) {
