@@ -4,6 +4,7 @@ import com.filler.form.Principal;
 import com.filler.form.Referencia.Referencia;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
+import com.itextpdf.text.Font;
 import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.ColumnText;
 import com.itextpdf.text.pdf.PdfContentByte;
@@ -13,7 +14,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -43,13 +43,11 @@ public class Filler {
 
     private static Logger LOGGER = LoggerFactory.getLogger(Filler.class);
 
-    private Resource resource = new ClassPathResource("carta_oposicao_CA1.pdf");
-
     @RequestMapping(method = RequestMethod.POST)
     public @ResponseBody Referencia create(@RequestBody Principal principal) {
         try {
 
-            InputStream in = resource.getInputStream();
+            InputStream in = new ClassPathResource("carta_oposicao_CA2.pdf").getInputStream();
             File tempFile = File.createTempFile("~Filler", ".pdf");
             tempFile.deleteOnExit();
 
@@ -59,19 +57,21 @@ public class Filler {
 
             PdfReader pdfReader = new PdfReader(in);
             PdfStamper pdfStamper = new PdfStamper(pdfReader, out);
-            PdfContentByte canvas = pdfStamper.getOverContent(1);
-            List<Conteudo> dadosAndLocation = new ArrayList<>();
-            Calendar hoje = Calendar.getInstance();
-            dadosAndLocation.add(new Conteudo(String.valueOf(hoje.get(Calendar.DAY_OF_MONTH)), 424.5f, 664.0f));
-            dadosAndLocation.add(new Conteudo(month(hoje.get(Calendar.MONTH)), 443.0f, 664.0f));
-            dadosAndLocation.add(new Conteudo(principal.getNome(), 115.0f, 540.0f));
-            dadosAndLocation.add(new Conteudo(principal.getTelefone(), 105.0f, 527.0f));
-            dadosAndLocation.add(new Conteudo(principal.getEmail(), 242.0f, 527.0f));
-            dadosAndLocation.add(new Conteudo(principal.getEmpresa(), 191.0f, 515.0f));
-            dadosAndLocation.add(new Conteudo(principal.getCargo(), 170.0f, 502.0f));
-            dadosAndLocation.add(new Conteudo(principal.getEndereco(), 112.0f, 489.0f));
+            final PdfContentByte canvas = pdfStamper.getOverContent(1);
 
-            dadosAndLocation.stream().forEach((conteudo) -> ColumnText.showTextAligned(canvas, Element.ALIGN_LEFT, new Phrase(conteudo.texto), conteudo.x, conteudo.y, 0));
+            Visitor fillerVisitor = new Visitor() {
+                @Override
+                public void visitConteudoSimples(ConteudoSimples conteudo) {
+                    ColumnText.showTextAligned(canvas, Element.ALIGN_LEFT, new Phrase(conteudo.texto, new Font(Font.FontFamily.HELVETICA, 10)), conteudo.x, conteudo.y, 0);
+                }
+
+                @Override
+                public void visitConteudoComFont(ConteudoComFont conteudo) {
+                    ColumnText.showTextAligned(canvas, Element.ALIGN_LEFT, new Phrase(conteudo.texto, new Font(Font.FontFamily.HELVETICA, conteudo.size)), conteudo.x, conteudo.y, 0);
+                }
+            };
+
+            carta2016(principal).stream().forEach((conteudo) -> conteudo.accept(fillerVisitor));
 
             pdfStamper.close();
             pdfReader.close();
@@ -121,16 +121,75 @@ public class Filler {
         return months.get(new Integer(m));
     }
 
-    private class Conteudo {
+    interface Conteudo {
+        void accept(Visitor visitor);
+    }
+
+    private class ConteudoSimples implements Conteudo {
         String texto;
         float x;
         float y;
 
-        public Conteudo(String texto, float x, float y) {
+        public ConteudoSimples(String texto, float x, float y) {
             this.texto = texto;
             this.x = x;
             this.y = y;
         }
+
+        @Override
+        public void accept(Visitor visitor) {
+            visitor.visitConteudoSimples(this);
+        }
+    }
+
+    private class ConteudoComFont extends ConteudoSimples {
+        private int size;
+        public ConteudoComFont(String texto, float x, float y, int size) {
+            super(texto, x, y);
+            this.size = size;
+        }
+
+        @Override
+        public void accept(Visitor visitor) {
+            visitor.visitConteudoComFont(this);
+        }
+    }
+
+    interface Visitor {
+        void visitConteudoSimples(ConteudoSimples conteudoSimples);
+        void visitConteudoComFont(ConteudoComFont conteudoComFont);
+    }
+
+    private List<Conteudo> carta2015(Principal principal) {
+        List<Conteudo> dadosAndLocation = new ArrayList<>();
+        Calendar hoje = Calendar.getInstance();
+
+        dadosAndLocation.add(new ConteudoSimples(String.valueOf(hoje.get(Calendar.DAY_OF_MONTH)), 424.5f, 664.0f));
+        dadosAndLocation.add(new ConteudoSimples(month(hoje.get(Calendar.MONTH)), 443.0f, 664.0f));
+        dadosAndLocation.add(new ConteudoSimples(principal.getNome(), 115.0f, 540.0f));
+        dadosAndLocation.add(new ConteudoSimples(principal.getTelefone(), 105.0f, 527.0f));
+        dadosAndLocation.add(new ConteudoSimples(principal.getEmail(), 242.0f, 527.0f));
+        dadosAndLocation.add(new ConteudoSimples(principal.getEmpresa(), 191.0f, 515.0f));
+        dadosAndLocation.add(new ConteudoSimples(principal.getCargo(), 170.0f, 502.0f));
+        dadosAndLocation.add(new ConteudoSimples(principal.getEndereco(), 112.0f, 489.0f));
+
+        return dadosAndLocation;
+    }
+
+    private List<Conteudo> carta2016(Principal principal) {
+        List<Conteudo> dadosAndLocation = new ArrayList<>();
+        Calendar hoje = Calendar.getInstance();
+
+        dadosAndLocation.add(new ConteudoSimples(String.valueOf(hoje.get(Calendar.DAY_OF_MONTH)), 424.5f, 664.0f));
+        dadosAndLocation.add(new ConteudoSimples(month(hoje.get(Calendar.MONTH)), 443.0f, 664.0f));
+        dadosAndLocation.add(new ConteudoSimples(principal.getNome(), 115.0f, 540.0f));
+        dadosAndLocation.add(new ConteudoSimples(principal.getTelefone(), 380.0f, 540.0f));
+        dadosAndLocation.add(new ConteudoComFont(principal.getEmail(), 89.0f, 528.0f, 6));
+        dadosAndLocation.add(new ConteudoSimples(principal.getEmpresa(), 341.0f, 527.0f));
+        dadosAndLocation.add(new ConteudoSimples(principal.getCargo(), 164.0f, 515.0f));
+        dadosAndLocation.add(new ConteudoSimples(principal.getEndereco(), 58.0f, 502.0f));
+
+        return dadosAndLocation;
     }
 
 }
