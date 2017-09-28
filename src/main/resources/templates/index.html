@@ -18,7 +18,6 @@
 </head>
 
 <body>
-
 <nav class="navbar navbar-inverse navbar-fixed-top">
     <div class="container">
         <div class="navbar-header">
@@ -29,6 +28,29 @@
 
 <div class="container" ng-view=""></div>
 
+<div id="fb-root"></div>
+<script>
+window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '831119000384361',
+      xfbml      : true,
+      version    : 'v2.10'
+    });
+    FB.AppEvents.logPageView();
+  };
+
+(function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "//connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+
+<div id="shareBtn" style="float: right;padding: 0em 14em 0em 0em;">
+    <div class="fb-share-button" data-href="https://sindpd-form.herokuapp.com" data-layout="button_count" data-size="small" data-mobile-iframe="true"><a class="fb-xfbml-parse-ignore" target="_blank" href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fsindpd-form.herokuapp.com%2F&amp;src=sdkpreparse">Share</a></div>
+</div>
 
 <!-- Bootstrap core JavaScript
 ================================================== -->
