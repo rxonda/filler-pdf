@@ -13,6 +13,7 @@ import com.itextpdf.text.pdf.PdfStamper;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,11 +44,14 @@ public class Filler {
 
     private static Logger LOGGER = LoggerFactory.getLogger(Filler.class);
 
+    @Value("${template.pdf.cartaoposicao}")
+    private String filePath;
+
     @RequestMapping(method = RequestMethod.POST)
     public @ResponseBody Referencia create(@RequestBody Principal principal) {
         try {
 
-            InputStream in = new ClassPathResource("carta_oposicao_CA2.pdf").getInputStream();
+            InputStream in = new ClassPathResource(filePath).getInputStream();
             File tempFile = File.createTempFile("~Filler", ".pdf");
             tempFile.deleteOnExit();
 
@@ -71,7 +75,7 @@ public class Filler {
                 }
             };
 
-            carta2016(principal).stream().forEach((conteudo) -> conteudo.accept(fillerVisitor));
+            carta2017(principal).stream().forEach((conteudo) -> conteudo.accept(fillerVisitor));
 
             pdfStamper.close();
             pdfReader.close();
@@ -188,6 +192,24 @@ public class Filler {
         dadosAndLocation.add(new ConteudoSimples(principal.getEmpresa(), 341.0f, 527.0f));
         dadosAndLocation.add(new ConteudoSimples(principal.getCargo(), 164.0f, 515.0f));
         dadosAndLocation.add(new ConteudoSimples(principal.getEndereco(), 58.0f, 502.0f));
+
+        return dadosAndLocation;
+    }
+
+    private List<Conteudo> carta2017(Principal principal) {
+        List<Conteudo> dadosAndLocation = new ArrayList<>();
+        Calendar hoje = Calendar.getInstance();
+
+        int smallFontSize = 6;
+
+        dadosAndLocation.add(new ConteudoSimples(String.valueOf(hoje.get(Calendar.DAY_OF_MONTH)), 424.7f, 664.0f));
+        dadosAndLocation.add(new ConteudoSimples(month(hoje.get(Calendar.MONTH)), 443.0f, 664.0f));
+        dadosAndLocation.add(new ConteudoSimples(principal.getNome(), 115.0f, 540.0f));
+        dadosAndLocation.add(new ConteudoSimples(principal.getTelefone(), 380.0f, 540.0f));
+        dadosAndLocation.add(new ConteudoComFont(principal.getEmail(), 89.0f, 528.0f, smallFontSize));
+        dadosAndLocation.add(new ConteudoSimples(principal.getEmpresa(), 341.0f, 527.0f));
+        dadosAndLocation.add(new ConteudoSimples(principal.getCargo(), 164.0f, 515.0f));
+        dadosAndLocation.add(new ConteudoComFont(principal.getEndereco(), 58.0f, 502.0f, smallFontSize));
 
         return dadosAndLocation;
     }
